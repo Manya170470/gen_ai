@@ -1,0 +1,17 @@
+# API keys and secrets
+.env
+.env.*
+
+# Allow an example environment file
+!.env.example
+
+# Virtual environment
+env/
+.venv/
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+
+# Jupyter checkpoints
+.ipynb_checkpoints/

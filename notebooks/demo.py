@@ -1,16 +1,34 @@
-import os
 from dotenv import load_dotenv
-from google import genai
-
 load_dotenv()
 
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
+from langchain_community.utilities import GoogleSerperAPIWrapper
+from langchain.agents import create_agent
+from langchain_groq import ChatGroq
+
+from langgraph.checkpoint.memory import MemorySaver
+
+
+model = ChatGroq(model="openai/gpt-oss-20b")
+search = GoogleSerperAPIWrapper()
+memory = MemorySaver()
+
+
+agent = create_agent(
+    model=model,
+    tools=[search.run],
+    checkpointer=memory,
+    system_prompt="You are a agent and can search for any question on google."
 )
 
-response = client.models.generate_content(
-    model="gemini-3.5-flash-lite",
-    contents="Explain LangChain in simple words."
-)
 
-print(response.text)
+while True:
+    query = input("User: ")
+    if query.lower() == "quit":
+        print("Good Bye 👋")
+        break
+
+    response = agent.invoke(
+                {"messages":[{"role":"user", "content":query}]}, 
+                {"configurable": {"thread_id": "1"}}, 
+            )
+    print("AI:",  response["messages"][-1].content)
